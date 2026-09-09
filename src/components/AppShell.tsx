@@ -54,10 +54,10 @@ export function AppShell() {
       <aside className={`brand-panel fixed inset-y-0 left-0 z-40 w-[280px] text-white transition lg:static ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="flex h-full flex-col">
           <div className="flex items-start justify-between gap-2 px-4 py-5">
-            <a href="https://www.bcsoftwareweb.com/" target="_blank" rel="noreferrer" className="block min-w-0">
+            <div className="min-w-0">
               <BrandLogo variant="onDark" className="h-14 w-auto max-w-[200px] object-contain object-left" />
               <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">General Management</p>
-            </a>
+            </div>
             <button className="lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu">
               <X />
             </button>
@@ -81,11 +81,6 @@ export function AppShell() {
               )
             })}
           </nav>
-          <div className="border-t border-white/10 px-4 py-4 text-xs text-slate-400">
-            <a className="text-gold hover:underline" href="https://www.bcsoftwareweb.com/" target="_blank" rel="noreferrer">
-              bcsoftwareweb.com
-            </a>
-          </div>
         </div>
       </aside>
       <div className="min-w-0">

@@ -10,8 +10,8 @@ export function BrandLogo({ variant = 'onDark', className = 'h-12 w-auto' }: Bra
 
 export function BrandLockup({ className = 'h-14' }: { className?: string }) {
   return (
-    <a href="https://www.bcsoftwareweb.com/" target="_blank" rel="noreferrer" className="inline-flex rounded-lg bg-ink p-2">
+    <div className="inline-flex rounded-lg bg-ink p-2">
       <BrandLogo variant="onDark" className={`${className} w-auto max-w-[220px] object-contain object-left`} />
-    </a>
+    </div>
   )
 }

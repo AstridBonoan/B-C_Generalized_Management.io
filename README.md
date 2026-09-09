@@ -1,6 +1,6 @@
 # B&C General Management System
 
-General-purpose business management demo for **[B&C Software & Web](https://www.bcsoftwareweb.com/)**.
+General-purpose business management demo for **B&C Software & Web**.
 
 This repository is the reusable foundation for later industry-specific and customer-specific systems:
 

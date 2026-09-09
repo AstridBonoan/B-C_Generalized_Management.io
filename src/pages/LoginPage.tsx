@@ -38,9 +38,7 @@ export function LoginPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="brand-panel hidden p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <a href="https://www.bcsoftwareweb.com/" target="_blank" rel="noreferrer">
-          <BrandLogo variant="onDark" className="h-20 w-auto max-w-xs object-contain object-left" />
-        </a>
+        <BrandLogo variant="onDark" className="h-20 w-auto max-w-xs object-contain object-left" />
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">B&C Software & Web</p>
           <h1 className="mt-3 font-display text-4xl leading-tight lg:text-5xl">General Management System</h1>
@@ -49,12 +47,7 @@ export function LoginPage() {
             scheduling, and administration.
           </p>
         </div>
-        <p className="text-sm text-slate-400">
-          Public site:{' '}
-          <a className="text-gold underline" href="https://www.bcsoftwareweb.com/" target="_blank" rel="noreferrer">
-            bcsoftwareweb.com
-          </a>
-        </p>
+        <p className="text-sm text-slate-400">Demo accounts use the password demo123.</p>
       </div>
       <div className="flex items-center justify-center bg-paper p-6">
         <form onSubmit={onSubmit} className="w-full max-w-md space-y-4 rounded-2xl border border-line bg-card p-8 shadow-sm">

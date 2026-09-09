@@ -251,7 +251,7 @@ export function createSeedState(): AppState {
       name: 'B&C Software & Web',
       email: 'hello@bcsoftware.demo',
       phone: '555-0199',
-      website: 'https://www.bcsoftwareweb.com/',
+      website: '',
       address: '1200 Harbor Lane, Suite 4',
       notificationPreferences: {
         taskAssigned: true,
