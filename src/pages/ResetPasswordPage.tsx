@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { collectErrors, isNonEmpty } from '../lib/validation'
+import { BrandLockup } from '../components/BrandLogo'
 import { Alert, Button, Field, Input } from '../components/ui'
 
 export function ResetPasswordPage() {
@@ -29,8 +30,9 @@ export function ResetPasswordPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-svh max-w-lg items-center p-6">
-      <form onSubmit={onSubmit} className="w-full space-y-4 rounded-2xl border border-line bg-card p-8">
+    <div className="flex min-h-svh items-center bg-paper p-6">
+      <form onSubmit={onSubmit} className="mx-auto w-full max-w-lg space-y-4 rounded-2xl border border-line bg-card p-8">
+        <BrandLockup />
         <h1 className="font-display text-3xl">Choose a new password</h1>
         {error ? <Alert tone="error">{error}</Alert> : null}
         {done ? (

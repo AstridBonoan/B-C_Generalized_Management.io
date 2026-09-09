@@ -22,6 +22,7 @@ import {
 import { useApp } from '../context/AppContext'
 import { canViewModule } from '../lib/permissions'
 import type { ModuleKey } from '../types/domain'
+import { BrandLogo } from './BrandLogo'
 import { Button, Input } from './ui'
 
 const NAV: Array<{ to: string; label: string; module: ModuleKey; icon: typeof LayoutDashboard }> = [
@@ -49,14 +50,14 @@ export function AppShell() {
   const results = useMemo(() => (query.trim().length > 1 ? store.globalSearch(query, 5) : null), [query, store])
 
   return (
-    <div className="min-h-svh bg-paper lg:grid lg:grid-cols-[260px_1fr]">
-      <aside className={`fixed inset-y-0 left-0 z-40 w-[260px] bg-teal-deep text-paper transition lg:static ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+    <div className="min-h-svh bg-paper lg:grid lg:grid-cols-[280px_1fr]">
+      <aside className={`brand-panel fixed inset-y-0 left-0 z-40 w-[280px] text-white transition lg:static ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between px-5 py-5">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-gold-soft">B&C Software & Web</p>
-              <p className="font-display text-xl">Management</p>
-            </div>
+          <div className="flex items-start justify-between gap-2 px-4 py-5">
+            <a href="https://www.bcsoftwareweb.com/" target="_blank" rel="noreferrer" className="block min-w-0">
+              <BrandLogo variant="onDark" className="h-14 w-auto max-w-[200px] object-contain object-left" />
+              <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">General Management</p>
+            </a>
             <button className="lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu">
               <X />
             </button>
@@ -71,7 +72,7 @@ export function AppShell() {
                   end={item.to === '/' || item.to === '/settings'}
                   onClick={() => setOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${isActive ? 'bg-white/10 text-white' : 'text-paper/80 hover:bg-white/5'}`
+                    `flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${isActive ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`
                   }
                 >
                   <Icon size={18} />
@@ -80,6 +81,11 @@ export function AppShell() {
               )
             })}
           </nav>
+          <div className="border-t border-white/10 px-4 py-4 text-xs text-slate-400">
+            <a className="text-gold hover:underline" href="https://www.bcsoftwareweb.com/" target="_blank" rel="noreferrer">
+              bcsoftwareweb.com
+            </a>
+          </div>
         </div>
       </aside>
       <div className="min-w-0">
@@ -134,7 +140,7 @@ export function AppShell() {
             </div>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            {demoMode ? <span className="rounded-full bg-gold-soft px-2 py-1 text-xs font-semibold text-ink">Demo mode</span> : null}
+            {demoMode ? <span className="rounded-full bg-gold-soft px-2 py-1 text-xs font-semibold text-teal-deep">Demo mode</span> : null}
             <Button variant="ghost" type="button" onClick={() => navigate('/notifications')} aria-label="Notifications">
               <Bell size={18} />
               {unread ? <span className="rounded-full bg-gold px-1.5 text-xs text-white">{unread}</span> : null}

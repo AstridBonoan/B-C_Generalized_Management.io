@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { BrandLockup, BrandLogo } from '../components/BrandLogo'
+import { Alert, Button, Field, Input } from '../components/ui'
 import { useApp } from '../context/AppContext'
 import { collectErrors, isEmail, isNonEmpty } from '../lib/validation'
-import { Alert, Button, Field, Input } from '../components/ui'
 
 export function LoginPage() {
   const { store, refresh } = useApp()
@@ -36,18 +37,30 @@ export function LoginPage() {
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="hidden bg-teal-deep p-12 text-paper lg:flex lg:flex-col lg:justify-between">
-        <p className="text-sm uppercase tracking-[0.25em] text-gold-soft">B&C Software & Web</p>
+      <div className="brand-panel hidden p-12 text-white lg:flex lg:flex-col lg:justify-between">
+        <a href="https://www.bcsoftwareweb.com/" target="_blank" rel="noreferrer">
+          <BrandLogo variant="onDark" className="h-20 w-auto max-w-xs object-contain object-left" />
+        </a>
         <div>
-          <h1 className="font-display text-5xl leading-tight">General Management System</h1>
-          <p className="mt-4 max-w-md text-paper/80">
-            A reusable operations foundation for clients, work, scheduling, and administration.
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">B&C Software & Web</p>
+          <h1 className="mt-3 font-display text-4xl leading-tight lg:text-5xl">General Management System</h1>
+          <p className="mt-4 max-w-md text-slate-300">
+            Modern digital solutions for growing businesses. A reusable operations foundation for clients, work,
+            scheduling, and administration.
           </p>
         </div>
-        <p className="text-sm text-paper/60">Demo accounts use the password demo123.</p>
+        <p className="text-sm text-slate-400">
+          Public site:{' '}
+          <a className="text-gold underline" href="https://www.bcsoftwareweb.com/" target="_blank" rel="noreferrer">
+            bcsoftwareweb.com
+          </a>
+        </p>
       </div>
-      <div className="flex items-center justify-center p-6">
+      <div className="flex items-center justify-center bg-paper p-6">
         <form onSubmit={onSubmit} className="w-full max-w-md space-y-4 rounded-2xl border border-line bg-card p-8 shadow-sm">
+          <div className="lg:hidden">
+            <BrandLockup />
+          </div>
           <h2 className="font-display text-3xl">Sign in</h2>
           <p className="text-sm text-ink-soft">Use your B&C account to continue.</p>
           {error ? <Alert tone="error">{error}</Alert> : null}
