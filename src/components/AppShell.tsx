@@ -14,7 +14,6 @@ import {
   Settings,
   Shield,
   Users,
-  UsersRound,
   Activity,
   BarChart3,
   X,
@@ -28,7 +27,6 @@ import { Button, Input } from './ui'
 const NAV: Array<{ to: string; label: string; module: ModuleKey; icon: typeof LayoutDashboard }> = [
   { to: '/', label: 'Dashboard', module: 'dashboard', icon: LayoutDashboard },
   { to: '/clients', label: 'Clients', module: 'clients', icon: Building2 },
-  { to: '/leads', label: 'Leads', module: 'leads', icon: UsersRound },
   { to: '/tasks', label: 'Tasks', module: 'tasks', icon: ClipboardList },
   { to: '/projects', label: 'Projects', module: 'projects', icon: FolderKanban },
   { to: '/appointments', label: 'Appointments', module: 'appointments', icon: Calendar },
@@ -94,13 +92,13 @@ export function AppShell() {
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search records"
+                placeholder="Search clients, work, tasks, employees"
                 aria-label="Search records"
                 className="pl-9"
               />
               {results ? (
                 <div className="absolute z-20 mt-1 w-full rounded-lg border border-line bg-card p-2 text-sm shadow-lg">
-                  {(['clients', 'leads', 'projects', 'tasks', 'users'] as const).map((group) => (
+                  {(['clients', 'projects', 'tasks', 'users'] as const).map((group) => (
                     <div key={group}>
                       {results[group].length ? <p className="px-2 pt-1 text-xs uppercase text-ink-soft">{group}</p> : null}
                       {results[group].map((item) => {
@@ -108,13 +106,11 @@ export function AppShell() {
                         const to =
                           group === 'clients'
                             ? `/clients/${item.id}`
-                            : group === 'leads'
-                              ? '/leads'
-                              : group === 'projects'
-                                ? `/projects/${item.id}`
-                                : group === 'tasks'
-                                  ? '/tasks'
-                                  : `/users/${item.id}`
+                            : group === 'projects'
+                              ? `/projects/${item.id}`
+                              : group === 'tasks'
+                                ? '/tasks'
+                                : `/users/${item.id}`
                         return (
                           <button
                             key={item.id}

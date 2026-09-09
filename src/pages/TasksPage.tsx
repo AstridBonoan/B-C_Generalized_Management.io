@@ -30,11 +30,12 @@ export function TasksPage() {
   const { store, refresh, profile } = useApp()
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
+  const [assigned, setAssigned] = useState('')
   const [page, setPage] = useState(1)
   const [form, setForm] = useState<Task | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [archive, setArchive] = useState<Task | null>(null)
-  const result = useMemo(() => store.listTasks({ search, status: status || undefined, page, pageSize: 8 }), [store, search, status, page])
+  const result = useMemo(() => store.listTasks({ search, status: status || undefined, assignedEmployeeId: assigned || undefined, page, pageSize: 8 }), [store, search, status, assigned, page])
 
   function save() {
     if (!form) return
@@ -59,13 +60,17 @@ export function TasksPage() {
         description="Reusable work items that can reference a client, a project, both, or neither."
         actions={can(store.state, profile, 'tasks', 'create') ? <Button type="button" onClick={() => { setError(null); setForm(blankTask()) }}>New task</Button> : null}
       />
-      <div className="mb-4 grid gap-3 sm:grid-cols-2">
+      <div className="mb-4 grid gap-3 sm:grid-cols-3">
         <Input placeholder="Search tasks" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1) }} />
         <Select value={status} onChange={(event) => { setStatus(event.target.value); setPage(1) }}>
           <option value="">All statuses</option>
           <option value="todo">To Do</option>
           <option value="in_progress">In Progress</option>
           <option value="completed">Completed</option>
+        </Select>
+        <Select value={assigned} onChange={(event) => { setAssigned(event.target.value); setPage(1) }}>
+          <option value="">All employees</option>
+          {store.state.profiles.map((row) => <option key={row.id} value={row.id}>{row.fullName}</option>)}
         </Select>
       </div>
       <Table headers={['Task', 'Priority', 'Status', 'Due', '']}>

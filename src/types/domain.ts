@@ -11,7 +11,6 @@ export const MODULES = [
   'users',
   'roles',
   'clients',
-  'leads',
   'tasks',
   'projects',
   'appointments',
@@ -110,45 +109,13 @@ export interface ClientContact {
   isPrimary: boolean
 }
 
-export type LeadStatusKey =
-  | 'new'
-  | 'contacted'
-  | 'qualified'
-  | 'proposal'
-  | 'won'
-  | 'lost'
-
 export interface StatusOption {
   id: string
-  entity: 'lead' | 'task' | 'project' | 'appointment' | 'client'
+  entity: 'task' | 'project' | 'appointment' | 'client' | 'document'
   key: string
   label: string
   sortOrder: number
   isClosed?: boolean
-}
-
-export interface LeadSource {
-  id: string
-  name: string
-}
-
-export interface Lead {
-  id: string
-  displayName: string
-  email: string
-  phone: string
-  companyName: string
-  sourceId: string
-  status: LeadStatusKey
-  assignedEmployeeId: string | null
-  followUpDate: string | null
-  notes: string
-  convertedClientId: string | null
-  createdBy: string
-  updatedBy: string
-  createdAt: string
-  updatedAt: string
-  archivedAt: string | null
 }
 
 export type ProjectStatusKey = 'planning' | 'active' | 'on_hold' | 'completed' | 'archived'
@@ -233,7 +200,6 @@ export type NotificationType =
   | 'task_assigned'
   | 'task_due'
   | 'appointment_upcoming'
-  | 'new_lead'
   | 'client_update'
   | 'project_update'
   | 'system'
@@ -270,7 +236,7 @@ export interface CompanySettings {
     taskAssigned: boolean
     taskDue: boolean
     appointmentUpcoming: boolean
-    newLead: boolean
+    recordUpdates: boolean
   }
 }
 
@@ -287,8 +253,6 @@ export interface AppState {
   credentials: Credential[]
   clients: Client[]
   clientContacts: ClientContact[]
-  leads: Lead[]
-  leadSources: LeadSource[]
   statuses: StatusOption[]
   projects: Project[]
   projectMembers: ProjectMember[]

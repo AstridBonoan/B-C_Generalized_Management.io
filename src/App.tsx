@@ -11,7 +11,6 @@ import { UsersPage } from './pages/UsersPage'
 import { UserProfilePage } from './pages/UserProfilePage'
 import { ClientsPage } from './pages/ClientsPage'
 import { ClientDetailPage } from './pages/ClientDetailPage'
-import { LeadsPage } from './pages/LeadsPage'
 import { TasksPage } from './pages/TasksPage'
 import { ProjectsPage } from './pages/ProjectsPage'
 import { ProjectDetailPage } from './pages/ProjectDetailPage'
@@ -44,7 +43,6 @@ export default function App() {
             <Route path="profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
             <Route path="clients" element={<ProtectedRoute module="clients"><ClientsPage /></ProtectedRoute>} />
             <Route path="clients/:id" element={<ProtectedRoute module="clients"><ClientDetailPage /></ProtectedRoute>} />
-            <Route path="leads" element={<ProtectedRoute module="leads"><LeadsPage /></ProtectedRoute>} />
             <Route path="tasks" element={<ProtectedRoute module="tasks"><TasksPage /></ProtectedRoute>} />
             <Route path="projects" element={<ProtectedRoute module="projects"><ProjectsPage /></ProtectedRoute>} />
             <Route path="projects/:id" element={<ProtectedRoute module="projects"><ProjectDetailPage /></ProtectedRoute>} />

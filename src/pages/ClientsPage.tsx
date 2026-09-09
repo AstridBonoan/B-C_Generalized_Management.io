@@ -37,13 +37,14 @@ export function ClientsPage() {
   const { store, refresh, profile } = useApp()
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
+  const [assigned, setAssigned] = useState('')
   const [page, setPage] = useState(1)
   const [form, setForm] = useState<Client | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [archive, setArchive] = useState<Client | null>(null)
   const result = useMemo(
-    () => store.listClients({ search, status: status || undefined, page, pageSize: 8, includeArchived: status === 'archived' }),
-    [store, search, status, page],
+    () => store.listClients({ search, status: status || undefined, assignedEmployeeId: assigned || undefined, page, pageSize: 8, includeArchived: status === 'archived' }),
+    [store, search, status, assigned, page],
   )
 
   function save() {
@@ -73,13 +74,17 @@ export function ClientsPage() {
           ) : null
         }
       />
-      <div className="mb-4 grid gap-3 sm:grid-cols-2">
+      <div className="mb-4 grid gap-3 sm:grid-cols-3">
         <Input placeholder="Search clients" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1) }} />
         <Select value={status} onChange={(event) => { setStatus(event.target.value); setPage(1) }}>
           <option value="">Active & inactive</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
           <option value="archived">Archived</option>
+        </Select>
+        <Select value={assigned} onChange={(event) => { setAssigned(event.target.value); setPage(1) }}>
+          <option value="">All employees</option>
+          {store.state.profiles.map((row) => <option key={row.id} value={row.id}>{row.fullName}</option>)}
         </Select>
       </div>
       {result.total === 0 ? <p className="text-sm text-ink-soft">No clients match these filters.</p> : (

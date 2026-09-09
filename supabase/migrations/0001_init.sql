@@ -84,30 +84,6 @@ create table if not exists public.client_contacts (
   is_primary boolean not null default false
 );
 
-create table if not exists public.lead_sources (
-  id uuid primary key default gen_random_uuid(),
-  name text not null unique
-);
-
-create table if not exists public.leads (
-  id uuid primary key default gen_random_uuid(),
-  display_name text not null,
-  email text not null default '',
-  phone text not null default '',
-  company_name text not null default '',
-  source_id uuid references public.lead_sources(id),
-  status text not null,
-  assigned_employee_id uuid references public.profiles(id),
-  follow_up_date date,
-  notes text not null default '',
-  converted_client_id uuid references public.clients(id),
-  created_by uuid references public.profiles(id),
-  updated_by uuid references public.profiles(id),
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  archived_at timestamptz
-);
-
 create table if not exists public.projects (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -201,7 +177,6 @@ create table if not exists public.activities (
 );
 
 create index if not exists clients_assigned_idx on public.clients (assigned_employee_id);
-create index if not exists leads_status_idx on public.leads (status);
 create index if not exists tasks_assignee_idx on public.tasks (assigned_employee_id);
 create index if not exists appointments_date_idx on public.appointments (date);
 create index if not exists activities_created_idx on public.activities (created_at desc);
@@ -213,8 +188,6 @@ alter table public.role_permissions enable row level security;
 alter table public.company_settings enable row level security;
 alter table public.clients enable row level security;
 alter table public.client_contacts enable row level security;
-alter table public.lead_sources enable row level security;
-alter table public.leads enable row level security;
 alter table public.projects enable row level security;
 alter table public.project_members enable row level security;
 alter table public.tasks enable row level security;
@@ -271,10 +244,6 @@ create policy "settings_edit" on public.company_settings for update using (publi
 create policy "clients_select" on public.clients for select using (public.has_permission('clients', 'view'));
 create policy "clients_insert" on public.clients for insert with check (public.has_permission('clients', 'create'));
 create policy "clients_update" on public.clients for update using (public.has_permission('clients', 'edit'));
-
-create policy "leads_select" on public.leads for select using (public.has_permission('leads', 'view'));
-create policy "leads_insert" on public.leads for insert with check (public.has_permission('leads', 'create'));
-create policy "leads_update" on public.leads for update using (public.has_permission('leads', 'edit'));
 
 create policy "projects_select" on public.projects for select using (public.has_permission('projects', 'view'));
 create policy "projects_insert" on public.projects for insert with check (public.has_permission('projects', 'create'));

@@ -6,7 +6,6 @@ import type {
   Client,
   ClientContact,
   DocumentRecord,
-  Lead,
   ListQuery,
   NotificationType,
   PagedResult,
@@ -19,7 +18,7 @@ import { can } from '../lib/permissions'
 import { hashPassword, matchesSearch, newId, nowIso, paginate } from '../lib/validation'
 import { createSeedState } from './seed'
 
-const STATE_KEY = 'bc.gms.state.v1'
+const STATE_KEY = 'bc.gms.state.v2'
 const SESSION_KEY = 'bc.gms.session.v1'
 
 function clone<T>(value: T): T {
@@ -127,7 +126,7 @@ export class AppStore {
     if (type === 'task_assigned' && !prefs.taskAssigned) return
     if (type === 'task_due' && !prefs.taskDue) return
     if (type === 'appointment_upcoming' && !prefs.appointmentUpcoming) return
-    if (type === 'new_lead' && !prefs.newLead) return
+    if ((type === 'client_update' || type === 'project_update') && !prefs.recordUpdates) return
     const notification: AppNotification = {
       id: newId(),
       type,
@@ -335,95 +334,6 @@ export class AppStore {
       : [...this.state.clientContacts, contact]
     this.persist()
     return contact
-  }
-
-  listLeads(query?: ListQuery) {
-    this.assert('leads', 'view')
-    return applyQuery(
-      this.state.leads,
-      query,
-      (item) => `${item.displayName} ${item.companyName} ${item.email}`,
-      (item) => item.status,
-      (item) => item.assignedEmployeeId,
-      (item) => item.archivedAt,
-    )
-  }
-
-  saveLead(input: Omit<Lead, 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'convertedClientId' | 'archivedAt'> & Partial<Lead>) {
-    const existing = this.state.leads.find((row) => row.id === input.id)
-    if (existing) this.assert('leads', 'edit')
-    else this.assert('leads', 'create')
-    const now = nowIso()
-    const lead: Lead = {
-      id: input.id,
-      displayName: input.displayName.trim(),
-      email: input.email,
-      phone: input.phone,
-      companyName: input.companyName,
-      sourceId: input.sourceId,
-      status: input.status,
-      assignedEmployeeId: input.assignedEmployeeId,
-      followUpDate: input.followUpDate,
-      notes: input.notes,
-      convertedClientId: existing?.convertedClientId ?? input.convertedClientId ?? null,
-      createdBy: existing?.createdBy ?? this.actorId(),
-      updatedBy: this.actorId(),
-      createdAt: existing?.createdAt ?? now,
-      updatedAt: now,
-      archivedAt: input.archivedAt ?? existing?.archivedAt ?? null,
-    }
-    this.state.leads = existing
-      ? this.state.leads.map((row) => (row.id === lead.id ? lead : row))
-      : [...this.state.leads, lead]
-    this.log(existing ? 'lead_updated' : 'lead_created', `Lead ${existing ? 'updated' : 'created'}: ${lead.displayName}`, 'lead', lead.id)
-    if (!existing) {
-      this.notify('new_lead', 'New lead', `${lead.displayName} was added to the pipeline.`, lead.assignedEmployeeId ?? this.actorId(), 'lead', lead.id)
-    }
-    this.persist()
-    return lead
-  }
-
-  archiveLead(id: string) {
-    this.assert('leads', 'archive')
-    const lead = this.state.leads.find((row) => row.id === id)
-    if (!lead) throw new Error('Lead was not found.')
-    lead.archivedAt = nowIso()
-    lead.updatedAt = nowIso()
-    this.log('lead_archived', `Lead archived: ${lead.displayName}`, 'lead', lead.id)
-    this.persist()
-  }
-
-  convertLead(id: string) {
-    this.assert('leads', 'edit')
-    this.assert('clients', 'create')
-    const lead = this.state.leads.find((row) => row.id === id)
-    if (!lead) throw new Error('Lead was not found.')
-    if (lead.convertedClientId) throw new Error('This lead has already been converted.')
-    const client = this.saveClient({
-      id: newId(),
-      type: lead.companyName ? 'business' : 'individual',
-      displayName: lead.displayName,
-      legalName: lead.companyName || lead.displayName,
-      email: lead.email,
-      phone: lead.phone,
-      addressLine1: '',
-      addressLine2: '',
-      city: '',
-      region: '',
-      postalCode: '',
-      country: '',
-      status: 'active',
-      notes: lead.notes,
-      tags: ['Converted'],
-      assignedEmployeeId: lead.assignedEmployeeId,
-    })
-    lead.status = 'won'
-    lead.convertedClientId = client.id
-    lead.updatedAt = nowIso()
-    lead.updatedBy = this.actorId()
-    this.log('lead_converted', `Lead converted: ${lead.displayName} → ${client.displayName}`, 'lead', lead.id)
-    this.persist()
-    return client
   }
 
   listProjects(query?: ListQuery) {
@@ -672,54 +582,43 @@ export class AppStore {
     this.persist()
   }
 
-  addLeadSource(name: string) {
-    this.assert('settings', 'edit')
-    this.state.leadSources.push({ id: newId(), name })
-    this.persist()
-  }
-
   globalSearch(term: string, limit = 8) {
     const q = term.trim()
     if (!q) {
-      return { clients: [], leads: [], users: [], projects: [], tasks: [], appointments: [], documents: [] }
+      return { clients: [], users: [], projects: [], tasks: [] }
     }
     const take = <T,>(items: T[], test: (item: T) => boolean) => items.filter(test).slice(0, limit)
     return {
       clients: take(this.state.clients, (item) => matchesSearch(`${item.displayName} ${item.email}`, q)),
-      leads: take(this.state.leads, (item) => matchesSearch(`${item.displayName} ${item.email}`, q)),
       users: take(this.state.profiles, (item) => matchesSearch(`${item.fullName} ${item.email}`, q)),
       projects: take(this.state.projects, (item) => matchesSearch(item.name, q)),
       tasks: take(this.state.tasks, (item) => matchesSearch(item.title, q)),
-      appointments: take(this.state.appointments, (item) => matchesSearch(item.title, q)),
-      documents: take(this.state.documents, (item) => matchesSearch(item.name, q)),
     }
   }
 
   reports() {
     this.assert('reports', 'view')
     const clients = this.state.clients.filter((row) => !row.archivedAt)
-    const leads = this.state.leads.filter((row) => !row.archivedAt)
-    const converted = leads.filter((row) => row.status === 'won' || row.convertedClientId)
     const tasks = this.state.tasks.filter((row) => !row.archivedAt)
     const projects = this.state.projects.filter((row) => !row.archivedAt)
-    const upcoming = this.state.appointments.filter((row) => row.status === 'scheduled')
+    const appointments = this.state.appointments
     const workload = this.state.profiles.map((profile) => ({
       profile,
       openTasks: tasks.filter((task) => task.assignedEmployeeId === profile.id && task.status !== 'completed').length,
       projects: this.state.projectMembers.filter((row) => row.profileId === profile.id).length,
+      appointments: appointments.filter((row) => row.employeeId === profile.id && row.status === 'scheduled').length,
     }))
     return {
       clientCount: clients.length,
-      newClients: clients.filter((row) => row.createdAt >= '2026-09-01').length,
-      leadCount: leads.length,
-      leadConversion: leads.length ? Math.round((converted.length / leads.length) * 100) : 0,
+      activeClients: clients.filter((row) => row.status === 'active').length,
+      projectCount: projects.length,
       openTasks: tasks.filter((row) => row.status !== 'completed').length,
       completedTasks: tasks.filter((row) => row.status === 'completed').length,
+      upcomingAppointments: appointments.filter((row) => row.status === 'scheduled').length,
       projectsByStatus: projects.reduce<Record<string, number>>((acc, project) => {
         acc[project.status] = (acc[project.status] ?? 0) + 1
         return acc
       }, {}),
-      upcomingAppointments: upcoming.length,
       workload,
       recentActivity: this.state.activities.slice(0, 12),
     }

@@ -32,7 +32,8 @@ export function AppointmentsPage() {
   const [error, setError] = useState<string | null>(null)
   const [cancel, setCancel] = useState<Appointment | null>(null)
   const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7))
-  const items = useMemo(() => store.listAppointments({ pageSize: 50 }).items, [store])
+  const [assigned, setAssigned] = useState('')
+  const items = useMemo(() => store.listAppointments({ pageSize: 50, assignedEmployeeId: assigned || undefined }).items, [store, assigned])
 
   function save() {
     if (!form) return
@@ -65,6 +66,12 @@ export function AppointmentsPage() {
         actions={can(store.state, profile, 'appointments', 'create') ? <Button type="button" onClick={() => { setError(null); setForm(blankAppointment()) }}>New appointment</Button> : null}
       />
       <Tabs value={view} onChange={setView} tabs={[{ id: 'list', label: 'List' }, { id: 'calendar', label: 'Calendar' }]} />
+      <div className="mt-4 max-w-xs">
+        <Select value={assigned} onChange={(event) => setAssigned(event.target.value)}>
+          <option value="">All employees</option>
+          {store.state.profiles.map((row) => <option key={row.id} value={row.id}>{row.fullName}</option>)}
+        </Select>
+      </div>
       {view === 'list' ? (
         <div className="mt-4">
           <Table headers={['Appointment', 'Date', 'People', 'Status', '']}>

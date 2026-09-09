@@ -89,21 +89,11 @@ describe('core workflows', () => {
     expect(store.state.activities.some((row) => row.eventType === 'task_completed')).toBe(true)
   })
 
-  it('converts a lead into a client', async () => {
-    const store = await signedIn()
-    const client = store.convertLead(IDS.leadBright)
-    const lead = store.state.leads.find((row) => row.id === IDS.leadBright)
-    expect(lead?.status).toBe('won')
-    expect(lead?.convertedClientId).toBe(client.id)
-    expect(client.displayName).toBe('Brightline Services')
-    expect(store.state.activities.some((row) => row.eventType === 'lead_converted')).toBe(true)
-  })
-
   it('searches a subset of records instead of returning the full catalog blindly', async () => {
     const store = await signedIn()
     const results = store.globalSearch('Apex')
     expect(results.clients.length).toBeGreaterThan(0)
     expect(results.clients.every((row) => row.displayName.includes('Apex'))).toBe(true)
-    expect(results.leads.length).toBeLessThanOrEqual(8)
+    expect(results.tasks.length).toBeLessThanOrEqual(8)
   })
 })
