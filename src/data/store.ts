@@ -144,8 +144,22 @@ export class AppStore {
 
   async login(email: string, password: string): Promise<Session> {
     const normalized = email.trim().toLowerCase()
-    const supabase = getSupabaseClient()
 
+    const credential = this.state.credentials.find((row) => row.email === normalized)
+    const profile = this.state.profiles.find((row) => row.email === normalized)
+    if (credential && profile) {
+      if (profile.status !== 'active') throw new Error('This account is inactive.')
+      const hash = await hashPassword(password)
+      if (hash !== credential.passwordHash) {
+        // If the local app account fails, try the configured Supabase login next.
+      } else {
+        this.session = { profileId: profile.id, email: profile.email }
+        this.persist()
+        return this.session
+      }
+    }
+
+    const supabase = getSupabaseClient()
     if (supabase) {
       try {
         const { data, error } = await supabase.auth.signInWithPassword({ email: normalized, password })
@@ -160,30 +174,22 @@ export class AppStore {
             throw new Error(profileError.message)
           }
 
-          const profile = supabaseProfile ?? this.state.profiles.find((row) => row.email === normalized)
-          if (profile) {
-            if (profile.status !== 'active') throw new Error('This account is inactive.')
-            this.session = { profileId: profile.id, email: profile.email }
+          const nextProfile = supabaseProfile ?? profile
+          if (nextProfile) {
+            if (nextProfile.status !== 'active') throw new Error('This account is inactive.')
+            this.session = { profileId: nextProfile.id, email: nextProfile.email }
             this.persist()
             return this.session
           }
-
-          // If Supabase auth succeeds but the user's profile is missing, continue to the local demo fallback.
         }
       } catch {
-        // Fall through to the local seeded credential path below so demo users keep working.
+        // Fall through to the final invalid credentials error below.
       }
     }
 
-    const credential = this.state.credentials.find((row) => row.email === normalized)
-    const profile = this.state.profiles.find((row) => row.email === normalized)
     if (!credential || !profile) throw new Error('Invalid email or password.')
     if (profile.status !== 'active') throw new Error('This account is inactive.')
-    const hash = await hashPassword(password)
-    if (hash !== credential.passwordHash) throw new Error('Invalid email or password.')
-    this.session = { profileId: profile.id, email: profile.email }
-    this.persist()
-    return this.session
+    throw new Error('Invalid email or password.')
   }
 
   logout() {
