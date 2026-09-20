@@ -15,6 +15,7 @@ import type {
   Task,
 } from '../types/domain'
 import { can } from '../lib/permissions'
+import { getSupabaseClient } from '../lib/supabase'
 import { hashPassword, matchesSearch, newId, nowIso, paginate } from '../lib/validation'
 import { createSeedState } from './seed'
 
@@ -143,6 +144,35 @@ export class AppStore {
 
   async login(email: string, password: string): Promise<Session> {
     const normalized = email.trim().toLowerCase()
+    const supabase = getSupabaseClient()
+
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email: normalized, password })
+        if (!error && data.user) {
+          const { data: supabaseProfile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', normalized)
+            .maybeSingle()
+
+          if (profileError) {
+            throw new Error(profileError.message)
+          }
+
+          const profile = supabaseProfile ?? this.state.profiles.find((row) => row.email === normalized)
+          if (!profile) throw new Error('This account is not configured in the app.')
+          if (profile.status !== 'active') throw new Error('This account is inactive.')
+
+          this.session = { profileId: profile.id, email: profile.email }
+          this.persist()
+          return this.session
+        }
+      } catch {
+        // fall through to the local seeded credential path below so demo users keep working
+      }
+    }
+
     const credential = this.state.credentials.find((row) => row.email === normalized)
     const profile = this.state.profiles.find((row) => row.email === normalized)
     if (!credential || !profile) throw new Error('Invalid email or password.')
@@ -155,6 +185,10 @@ export class AppStore {
   }
 
   logout() {
+    const supabase = getSupabaseClient()
+    if (supabase) {
+      supabase.auth.signOut().catch(() => {})
+    }
     this.session = null
     this.persist()
   }
