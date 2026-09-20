@@ -156,20 +156,22 @@ export class AppStore {
             .eq('email', normalized)
             .maybeSingle()
 
-          if (profileError) {
+          if (profileError && profileError.code !== 'PGRST116') {
             throw new Error(profileError.message)
           }
 
           const profile = supabaseProfile ?? this.state.profiles.find((row) => row.email === normalized)
-          if (!profile) throw new Error('This account is not configured in the app.')
-          if (profile.status !== 'active') throw new Error('This account is inactive.')
+          if (profile) {
+            if (profile.status !== 'active') throw new Error('This account is inactive.')
+            this.session = { profileId: profile.id, email: profile.email }
+            this.persist()
+            return this.session
+          }
 
-          this.session = { profileId: profile.id, email: profile.email }
-          this.persist()
-          return this.session
+          // If Supabase auth succeeds but the user's profile is missing, continue to the local demo fallback.
         }
       } catch {
-        // fall through to the local seeded credential path below so demo users keep working
+        // Fall through to the local seeded credential path below so demo users keep working.
       }
     }
 
