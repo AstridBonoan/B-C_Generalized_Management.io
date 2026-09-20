@@ -1,6 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
 import { AppStore } from '../data/store'
-import { isSupabaseConfigured } from '../lib/supabase'
 import type { Profile } from '../types/domain'
 
 const AppContext = createContext<{
