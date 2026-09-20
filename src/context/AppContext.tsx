@@ -8,7 +8,6 @@ const AppContext = createContext<{
   version: number
   refresh: () => void
   profile: Profile | null
-  demoMode: boolean
 } | null>(null)
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -21,7 +20,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       version,
       refresh,
       profile: store.currentProfile(),
-      demoMode: !isSupabaseConfigured(),
     }),
     [store, version],
   )

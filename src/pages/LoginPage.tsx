@@ -9,8 +9,8 @@ export function LoginPage() {
   const { store, refresh } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
-  const [email, setEmail] = useState('admin@bcsoftware.demo')
-  const [password, setPassword] = useState('demo123')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -47,7 +47,7 @@ export function LoginPage() {
             scheduling, and administration.
           </p>
         </div>
-        <p className="text-sm text-slate-400">Demo accounts use the password demo123.</p>
+        <p className="text-sm text-slate-400">Use your B&C account email and password to continue.</p>
       </div>
       <div className="flex items-center justify-center bg-paper p-6">
         <form onSubmit={onSubmit} className="w-full max-w-md space-y-4 rounded-2xl border border-line bg-card p-8 shadow-sm">

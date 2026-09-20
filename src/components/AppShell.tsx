@@ -39,7 +39,7 @@ const NAV: Array<{ to: string; label: string; module: ModuleKey; icon: typeof La
 ]
 
 export function AppShell() {
-  const { store, profile, demoMode, refresh } = useApp()
+  const { store, profile, refresh } = useApp()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -131,7 +131,6 @@ export function AppShell() {
             </div>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            {demoMode ? <span className="rounded-full bg-gold-soft px-2 py-1 text-xs font-semibold text-teal-deep">Demo mode</span> : null}
             <Button variant="ghost" type="button" onClick={() => navigate('/notifications')} aria-label="Notifications">
               <Bell size={18} />
               {unread ? <span className="rounded-full bg-gold px-1.5 text-xs text-white">{unread}</span> : null}
