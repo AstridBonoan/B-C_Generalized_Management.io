@@ -1,12 +1,14 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 export function isSupabaseConfigured(): boolean {
-  return Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY)
+  return Boolean(import.meta.env.VITE_SUPABASE_URL && (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY))
 }
 
 export function getSupabaseClient(): SupabaseClient | null {
-  if (!isSupabaseConfigured()) return null
-  return createClient(import.meta.env.VITE_SUPABASE_URL!, import.meta.env.VITE_SUPABASE_ANON_KEY!, {
+  const url = import.meta.env.VITE_SUPABASE_URL
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+  if (!url || !key) return null
+  return createClient(url, key, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
